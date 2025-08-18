@@ -116,5 +116,64 @@
   </script>
 </body>
 </html>
+<div class="form-group">
+  <label for="tor">Tor</label>
+  <input type="text" id="tor" placeholder="z. B. Tor 3" required>
+</div>
+<div class="form-group">
+  <label for="user">Mitarbeiter (optional)</label>
+  <input type="text" id="user" placeholder="Name/Kürzel">
+</div>
+<div class="form-group">
+  <label for="note">Notiz (optional)</label>
+  <input type="text" id="note" placeholder="z. B. Vorlader">
+</div>
+<div class="buttons" style="margin-top:10px;">
+  <button class="btn-green" onclick="senden()">Senden</button>
+</div>
+
+<script>
+const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxF8OTiJZttLsnF5Jh32069scWBwwQtpQJ6mMr0MSidH_hWp211538Sq2U9F5Xr6qej/exec'; // <-- deine Apps-Script-URL
+
+function getVals() {
+  const L = parseFloat(document.getElementById('innenlaenge').value.toString().replace(',','.')) || 7;
+  const d = parseFloat(document.getElementById('freieLaenge').value.toString().replace(',','.'));
+  const loaded = Math.max(0, Math.min(L, L - (isNaN(d)?0:d)));
+  const pct = (loaded / L) * 100;
+  return { L, d, loaded, pct };
+}
+
+async function senden() {
+  const tor  = document.getElementById('tor').value.trim();
+  const user = document.getElementById('user').value.trim();
+  const notiz= document.getElementById('note').value.trim();
+  const { L, d, loaded, pct } = getVals();
+
+  if (!tor) { alert('Bitte Tor eingeben.'); return; }
+  if (isNaN(d)) { alert('Bitte freie Länge eingeben.'); return; }
+
+  const payload = {
+    tor,
+    innenlaenge: Number(L.toFixed(2)),
+    freie: Number(d.toFixed(2)),
+    geladen: Number(loaded.toFixed(2)),
+    beladen_prozent: Math.round(pct),
+    user,
+    notiz
+  };
+
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // Apps Script akzeptiert CORS; falls dein Browser blockt, nimm zusätzlich: mode: 'no-cors'
+      body: JSON.stringify(payload),
+    });
+    alert('Gesendet ✅');
+  } catch (e) {
+    alert('Senden fehlgeschlagen ❌: ' + e);
+  }
+}
+</script>
 
 
