@@ -1,101 +1,119 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Überhang → Beladen-% Rechner</title>
-<style>
-  :root { --fg:#111; --bg:#fff; --muted:#666; --ok:#0a7; }
-  @media (prefers-color-scheme: dark) {
-    :root { --fg:#eee; --bg:#111; --muted:#aaa; --ok:#3ecf8e; }
-  }
-  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg);
-              font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,sans-serif; }
-  header { padding:16px 14px 6px; font-weight:700; font-size:20px; }
-  main { padding: 8px 14px 40px; max-width: 640px; }
-  .row { display:flex; gap:10px; align-items:center; margin:10px 0; }
-  .col { flex:1; }
-  label { font-size:14px; color:var(--muted); display:block; margin-bottom:6px; }
-  input[type="number"] { width:100%; font-size:22px; padding:12px; border-radius:12px;
-                         border:1px solid #8883; outline:none; background:transparent; color:var(--fg); }
-  input[type="number"]:focus { border-color: var(--ok); box-shadow: 0 0 0 3px #0a73; }
-  .btn { width:100%; font-size:18px; padding:12px; border-radius:12px; border:0; background:var(--ok); color:#fff; font-weight:700; }
-  .mutebtn { background:#8884; color:var(--fg); }
-  .out { text-align:center; margin:16px 0 8px; }
-  .big { font-size:56px; font-weight:900; line-height:1.05; letter-spacing:0.5px; }
-  .unit { font-size:18px; color:var(--muted); }
-  .sub { text-align:center; font-size:18px; color:var(--muted); }
-  .hint { font-size:13px; color:var(--muted); margin-top:8px; }
-  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-  footer { position:fixed; bottom:0; left:0; right:0; padding:10px 14px; background:linear-gradient(180deg, #0000, #0002); }
-  .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background:#8882; padding:2px 6px; border-radius:6px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Überhang – Beladen-% Rechner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      max-width: 300px;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-green {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-grey {
+      background-color: #e0e0e0;
+      color: black;
+    }
+    .result {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .formula {
+      margin-top: 30px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #444;
+    }
+  </style>
 </head>
 <body>
-  <header>Überhang → Beladen-% Rechner</header>
-  <main>
-    <div class="row">
-      <div class="col">
-        <label>Innenlänge (Lademeter-Basis)</label>
-        <input id="len" type="number" step="0.01" min="0" value="7.00">
-        <div class="hint">Standard bei euch: <b>7,00 m</b>. Wird lokal gespeichert.</div>
-      </div>
-      <div class="col">
-        <label>Gemessene freie Länge (m)</label>
-        <input id="free" type="number" step="0.01" min="0" placeholder="z. B. 3.00">
-        <div class="hint">Am Heck mit dem Laser gemessen.</div>
-      </div>
-    </div>
+  <h1>Überhang – Beladen-% Rechner</h1>
 
-    <div class="grid">
-      <button class="btn" id="calc">Berechnen</button>
-      <button class="btn mutebtn" id="clear">Zurücksetzen</button>
-    </div>
+  <div class="form-group">
+    <label for="innenlaenge">Innenlänge (Lademeter-Basis)</label>
+    <input type="number" id="innenlaenge" value="7.00" step="0.01">
+    <small>Standard bei euch 7,00 m. Wird lokal gespeichert.</small>
+  </div>
 
-    <div class="out">
-      <div class="big"><span id="pct">–</span> <span class="unit">Beladen %</span></div>
-      <div class="sub"><span id="loadedm">–</span> geladene Meter</div>
-    </div>
+  <div class="form-group">
+    <label for="freieLaenge">Gemessene freie Länge (m)</label>
+    <input type="number" id="freieLaenge" placeholder="z. B. 3.00" step="0.01">
+    <small>Am Heck mit dem Laser gemessen.</small>
+  </div>
 
-    <div class="hint">
-      Formel: <span class="kbd">( (Innenlänge − freie Länge) ÷ Innenlänge ) × 100</span>
-    </div>
-  </main>
+  <div class="buttons">
+    <button class="btn-green" onclick="berechnen()">Berechnen</button>
+    <button class="btn-grey" onclick="zuruecksetzen()">Zurücksetzen</button>
+  </div>
 
-  <footer>
-    <div class="hint">Tipp (Android): In Chrome öffnen → Menü ⋮ → <b>Zum Startbildschirm hinzufügen</b>.</div>
-  </footer>
+  <div class="result" id="result"></div>
 
-<script>
-const $ = sel => document.querySelector(sel);
-const len = $('#len'), free = $('#free'), pct = $('#pct'), loadedm = $('#loadedm');
+  <div class="formula">
+    Formel: ((Innenlänge − freie Länge) ÷ Innenlänge) × 100
+  </div>
 
-// gespeicherte Innenlänge laden
-const savedLen = localStorage.getItem('wb_len');
-if (savedLen) len.value = savedLen;
+  <script>
+    function berechnen() {
+      const innenlaenge = parseFloat(document.getElementById('innenlaenge').value);
+      const freie = parseFloat(document.getElementById('freieLaenge').value);
 
-function round(n, d=2){ return Math.round(n * Math.pow(10,d)) / Math.pow(10,d); }
+      if (isNaN(innenlaenge) || isNaN(freie)) {
+        document.getElementById('result').innerText = "Bitte beide Felder ausfüllen!";
+        return;
+      }
 
-function compute() {
-  const L = parseFloat(len.value.toString().replace(',', '.'));
-  const d = parseFloat((free.value || '').toString().replace(',', '.'));
-  if (!isFinite(L) || L <= 0) { pct.textContent='–'; loadedm.textContent='–'; return; }
-  localStorage.setItem('wb_len', L.toFixed(2));
-  if (!isFinite(d) || d < 0) { pct.textContent='–'; loadedm.textContent='–'; return; }
-  const loaded = Math.max(0, Math.min(L, L - d));
-  const p = (loaded / L) * 100;
-  pct.textContent = Math.round(p);
-  loadedm.textContent = round(loaded, 2).toFixed(2) + ' m';
-}
+      const beladenProzent = ((innenlaenge - freie) / innenlaenge) * 100;
+      const beladeneMeter = (innenlaenge - freie).toFixed(2);
 
-$('#calc').addEventListener('click', compute);
-$('#clear').addEventListener('click', () => { free.value=''; pct.textContent='–'; loadedm.textContent='–'; });
-free.addEventListener('keyup', e => { if (e.key === 'Enter') compute(); });
-len.addEventListener('change', compute);
+      document.getElementById('result').innerHTML =
+        `📦 Beladen: ${beladenProzent.toFixed(2)}%<br>` +
+        `➡️ Geladene Meter: ${beladeneMeter} m`;
+    }
 
-// Autofokus
-setTimeout(()=> free.focus(), 100);
-</script>
+    function zuruecksetzen() {
+      document.getElementById('freieLaenge').value = "";
+      document.getElementById('result').innerHTML = "";
+    }
+  </script>
 </body>
 </html>
 
